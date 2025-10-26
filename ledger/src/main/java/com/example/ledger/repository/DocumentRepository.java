@@ -11,7 +11,7 @@ import com.example.ledger.domain.Document;
 
 public interface DocumentRepository extends JpaRepository<Document, Long>{
     Page<Document> findByUserId(Long userId, Pageable pageabel);
-    Page<Document> findByUserIdAndDateBetween(Long UserId, LocalDate start, LocalDate end);
+    Page<Document> findByUserIdAndDateBetween(Long UserId, LocalDate start, LocalDate end, Pageable pageable);
     Optional<Document> findByIdAndUserId(Long id, Long userId);
 
 }
