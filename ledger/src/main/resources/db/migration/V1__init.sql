@@ -1,0 +1,42 @@
+-- db/migration/V1__init.sql
+SET NAMES utf8mb4;
+SET time_zone = '+09:00';
+
+CREATE TABLE users (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(320) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  role ENUM('USER','ADMIN') NOT NULL DEFAULT 'USER',
+  status ENUM('ACTIVE','SUSPENDED','DELETED') NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE categories (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO categories(name) VALUES
+('식비'),('카페'),('교통'),('주거'),('통신'),('쇼핑'),('의료'),('급여'),('기타');
+
+CREATE TABLE documents (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  type ENUM('EXPENSE','INCOME') NOT NULL DEFAULT 'EXPENSE',
+  title VARCHAR(200),
+  store_name VARCHAR(200),
+  pay_date DATE,
+  total_amount BIGINT,
+  payment_method ENUM('CARD','CASH','UNKNOWN') DEFAULT 'UNKNOWN',
+  raw_text MEDIUMTEXT,
+  file_url VARCHAR(1000) NOT NULL,
+  status ENUM('IMPORTED','CONFIRMED') NOT NULL DEFAULT 'IMPORTED',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_docs_user FOREIGN KEY (user_id) REFERENCES users(id),
+  KEY idx_docs_user_date (user_id, pay_date, id),
+  KEY idx_docs_type_date (type, pay_date, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
