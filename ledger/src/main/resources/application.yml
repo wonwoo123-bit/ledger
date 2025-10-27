@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: dev   # 기본 활성 프로필
 
 ---
 spring:
@@ -9,33 +9,37 @@ spring:
       on-profile: dev
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/accountbook?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+    url: jdbc:mariadb://localhost:3306/ledger?useUnicode=true&characterEncoding=utf8
     username: root
     password: 1234
+    # driver-class-name: org.mariadb.jdbc.Driver   # (선택) 필요 시 명시
 
   jpa:
     hibernate:
-      ddl-auto: validate     # 스키마는 Flyway가 만들고 JPA는 검증만
+      ddl-auto: validate        # 스키마는 Flyway, JPA는 검증만
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
         jdbc.time_zone: Asia/Seoul
-    open-in-view: false
+        # default_batch_fetch_size: 50            # (선택) N+1 완화
 
   thymeleaf:
     cache: false
 
-flyway:
-  enabled: true
-  locations: classpath:db/migration
-  # 기존 DB에서 시작한다면(브라운필드) 아래 두 줄 활성화
-  # baseline-on-migrate: true
-  # baseline-version: 1
+  flyway:
+    enabled: true
+    baseline-on-migrate: true   # ← 기존 스키마에 이력 테이블 없을 때 1회 베이스라인
+    baseline-version: 1
+    schemas:
+      - ledger
+    default-schema: ledger
 
 logging:
   level:
     org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace   # 바인딩 파라미터 로그 (개발용만)
+    org.hibernate.orm.jdbc.bind: trace   # 바인딩 파라미터 로그(개발용)
 
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
+  # type-aliases-package: com.example.ledger.**   # (선택) MyBatis 병행 시 별칭 경로
