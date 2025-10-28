@@ -1,5 +1,6 @@
 package com.example.ledger.domain;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -12,37 +13,37 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Table(name="budgets",
-  uniqueConstraints = @UniqueConstraint(name="uk_budget_user_month_cat",
-    columnNames = {"user_id","month_ym","category_id"}),
-  indexes = @Index(name="idx_budget_month", columnList = "month_ym,category_id"))
+@Entity @Table(name="line_items",
+  indexes = {
+    @Index(name="idx_items_doc", columnList="document_id"),
+    @Index(name="idx_items_cat", columnList="category_id")
+  })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Budget {
+public class LineItem {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="user_id", nullable=false)
-  private User user;
+  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="document_id", nullable=false)
+  private Document document;
 
-  @Column(name="month_ym", nullable=false, length=7)
-  private String monthYm; // "YYYY-MM"
+  @Column(length=200)
+  private String name;
 
-  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="category_id", nullable=false)
+  @Column(precision=12, scale=2)
+  private BigDecimal quantity = BigDecimal.valueOf(1);
+
+  @Column(name="unit_price", precision=12, scale=2)
+  private BigDecimal unitPrice;
+
+  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="category_id")
   private Category category;
-
-  @Column(name="limit_amount", nullable=false)
-  private Long limitAmount;
 
   @Column(name="created_at", insertable=false, updatable=false)
   private LocalDateTime createdAt;
-
-  @Column(name="updated_at", insertable=false, updatable=false)
-  private LocalDateTime updatedAt;
 }

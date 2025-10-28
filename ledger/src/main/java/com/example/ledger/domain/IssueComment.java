@@ -10,39 +10,31 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Table(name="budgets",
-  uniqueConstraints = @UniqueConstraint(name="uk_budget_user_month_cat",
-    columnNames = {"user_id","month_ym","category_id"}),
-  indexes = @Index(name="idx_budget_month", columnList = "month_ym,category_id"))
+@Entity @Table(name="issue_comments",
+  indexes = @Index(name="idx_ic_issue_time", columnList="issue_id, created_at ASC"))
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Budget {
+public class IssueComment {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="issue_id", nullable=false)
+  private Issue issue;
 
   @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="user_id", nullable=false)
   private User user;
 
-  @Column(name="month_ym", nullable=false, length=7)
-  private String monthYm; // "YYYY-MM"
-
-  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="category_id", nullable=false)
-  private Category category;
-
-  @Column(name="limit_amount", nullable=false)
-  private Long limitAmount;
+  @Lob @Column(nullable=false)
+  private String body;
 
   @Column(name="created_at", insertable=false, updatable=false)
   private LocalDateTime createdAt;
-
-  @Column(name="updated_at", insertable=false, updatable=false)
-  private LocalDateTime updatedAt;
 }
