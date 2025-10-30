@@ -1,7 +1,6 @@
 package com.example.ledger.domain;
 
-import java.time.LocalDateTime;
-
+import com.example.ledger.domain.Auditable;
 import com.example.ledger.enums.UserRole;
 import com.example.ledger.enums.UserStatus;
 
@@ -22,14 +21,15 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_users_email", columnList = "email", unique = true)
+        @Index(name = "ix_users_email", columnList = "email", unique = true)
 })
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends Auditable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -50,11 +50,4 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private UserStatus status = UserStatus.ACTIVE;
-
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", insertable = false, updatable = false)
-    private LocalDateTime updatedAt;
 }
-

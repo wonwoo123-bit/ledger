@@ -1,8 +1,11 @@
 package com.example.ledger.domain;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
@@ -21,14 +24,24 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@IdClass(DocumentTagId.class)
+@IdClass(DocumentTag.PK.class)
 public class DocumentTag {
+
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id", foreignKey = @ForeignKey(name = "fk_dtag_doc"))
     private Document document;
 
     @Id
-    @Column(length = 50, nullable = false)
+    @Column(length = 50)
     private String tag;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PK implements Serializable {
+        private Long document;
+        private String tag;
+    }
 }

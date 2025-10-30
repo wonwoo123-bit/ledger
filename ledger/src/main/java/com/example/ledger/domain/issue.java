@@ -1,6 +1,6 @@
 package com.example.ledger.domain;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import com.example.ledger.enums.IssueSeverity;
 import com.example.ledger.enums.IssueStatus;
@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,39 +35,35 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Issue {
+public class Issue extends Auditable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reporter_user_id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "reporter_user_id", foreignKey = @ForeignKey(name = "fk_issues_reporter"))
     private User reporter;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_user_id")
+    @JoinColumn(name = "assignee_user_id", foreignKey = @ForeignKey(name = "fk_issues_assignee"))
     private User assignee;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 8)
     private IssueSeverity severity = IssueSeverity.LOW;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 12)
     private IssueStatus status = IssueStatus.OPEN;
 
     @Column(nullable = false, length = 200)
     private String title;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", insertable = false, updatable = false)
-    private LocalDateTime updatedAt;
-
     @Column(name = "resolved_at")
-    private LocalDateTime resolvedAt;
+    private Timestamp resolvedAt;
 }

@@ -1,6 +1,6 @@
 package com.example.ledger.domain;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import com.example.ledger.enums.NotificationStatus;
 
@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,38 +23,42 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Table(name="notifications",
-  indexes = {
-    @Index(name="idx_notif_user_status", columnList="user_id, status, created_at DESC"),
-    @Index(name="idx_notif_related", columnList="related_type, related_id")
-  })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Notification {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Entity
+@Table(name = "notifications", indexes = {
+    @Index(name = "idx_notif_user_status", columnList = "user_id, status, created_at DESC"),
+    @Index(name = "idx_notif_related", columnList = "related_type, related_id")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Notification extends Auditable {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="user_id", nullable=false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_notif_user"))
   private User user;
 
-  @Column(nullable=false, length=200)
+  @Column(nullable = false, length = 200)
   private String title;
 
-  @Column(nullable=false, length=1000)
+  @Column(nullable = false, length = 1000)
   private String message;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable=false, length=10)
+  @Column(nullable = false, length = 10)
   private NotificationStatus status = NotificationStatus.SENT;
 
-  @Column(name="related_type", length=50)
+  @Column(name = "related_type", length = 50)
   private String relatedType;
 
-  @Column(name="related_id")
+  @Column(name = "related_id")
   private Long relatedId;
 
-  @Column(name="created_at", insertable=false, updatable=false)
-  private LocalDateTime createdAt;
-
-  @Column(name="read_at")
-  private LocalDateTime readAt;
+  @Column(name = "read_at")
+  private Timestamp readAt;
 }
